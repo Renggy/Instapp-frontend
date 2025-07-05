@@ -7,7 +7,7 @@
         class="form-control form-control-sm"
         id="floatingEmail"
         placeholder="name@example.com"
-        v-model="data.email"
+        v-model="data.user_email"
         autocomplete="off"
         :disabled="loadingOnSubmit" />
       <label>Email</label>
@@ -46,23 +46,29 @@
 </template>
 <script setup lang="ts">
   import { ref } from 'vue';
-  import type { Sign } from './Auth';
   import axiosInstance from '@/services/axios';
+  import { useRouter } from 'vue-router';
+  const router = useRouter();
 
   const visiblePassword = ref<boolean>(false);
   const loadingOnSubmit = ref<boolean>(false);
-  const data = ref<Sign>({
-    email     : '',
-    password  : ''
+  const data = ref<{ user_email : string, password : string }>({
+    user_email : '',
+    password   : ''
   });
 
   const handleSubmit = async () => {
     loadingOnSubmit.value = true;
-    await axiosInstance.post('/api/v1/auth/signin', data.value)
+    await axiosInstance.post('/auth/signin', data.value)
       .then(resp => {
         console.log(resp);
         loadingOnSubmit.value = false;
-      }).finally(() => loadingOnSubmit.value = false);
+        router.push('/');
+      })
+      .catch(err => {
+        if (err.status == 401) alert("Password Salah");
+      })
+      .finally(() => loadingOnSubmit.value = false);
   }
 </script>
 

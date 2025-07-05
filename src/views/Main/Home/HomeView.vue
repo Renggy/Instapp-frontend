@@ -78,7 +78,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import PostDetailModal from '@/components/PostDetailModal.vue';
-import { Post } from '@/types';
+import { Post } from '@/types/types';
 
 // Placeholder data, nantinya ini akan datang dari API
 const posts = ref<Post[]>([
