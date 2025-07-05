@@ -1,6 +1,4 @@
-// src/router/index.ts
 import { createRouter, createWebHistory } from 'vue-router'
-import App from '@/App.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -13,19 +11,19 @@ const router = createRouter({
         {
           path: "/",
           name: "Beranda",
-          component: () => import('@/views/Main/Home/HomeIndex.vue'),
+          component: () => import('@/views/Main/Home/HomeView.vue'),
           meta: { pageTitle: "Beranda" },
         },
         {
           path: "/search",
           name: "Search",
-          component: () => import('@/views/Main/Search/SearchIndex.vue'),
+          component: () => import('@/views/Main/Search/SearchView.vue'),
           meta: { pageTitle: "Search" },
         },
         {
           path: "/profile",
           name: "Profile",
-          component: () => import('@/views/Main/Profile/ProfileIndex.vue'),
+          component: () => import('@/views/Main/Profile/ProfileView.vue'),
           meta: { pageTitle: "Profile" },
         },
       ]
@@ -37,13 +35,13 @@ const router = createRouter({
         {
           path: "/signin",
           name: "signin",
-          component: () => import('@/views/Auth/SignIn.vue'),
+          component: () => import('@/views/Auth/SignInView.vue'),
           meta: { pageTitle: "Sign In" },
         },
         {
           path: "/signup",
           name: "signup",
-          component: () => import('@/views/Auth/SignUp.vue'),
+          component: () => import('@/views/Auth/SignUpView.vue'),
           meta: { pageTitle: "Sign In" },
         },
       ]
