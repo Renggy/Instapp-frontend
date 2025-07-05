@@ -1,3 +1,4 @@
+import router from '@/router';
 import axios from 'axios';
 
 const axiosInstance = axios.create({
@@ -24,12 +25,13 @@ axiosInstance.interceptors.request.use(
 );
 
 axiosInstance.interceptors.response.use(
-  (response) => response, // Langsung teruskan jika response sukses
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      // Logika untuk handle 401, misalnya: redirect ke halaman login
-      console.error('Unauthorized access - 401. Redirecting to login.');
-      // window.location.href = '/login';
+  (response) => response,
+  (error)    => {
+    switch (error.response.status) {
+      case 401:router.push('/signin');    break;
+      case 403: router.push('/');         break;
+      case 500: alert('Something error'); break;
+      default: break;
     }
     return Promise.reject(error);
   }
