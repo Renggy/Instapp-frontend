@@ -9,7 +9,7 @@
               <i class="bi bi-instagram d-none d-lg-none"></i>
               <span class="d-none d-lg-block">Instapp</span>
             </a>
-            <nav class="nav nav-pills flex-column gap-2">
+            <nav class="nav nav-pills flex-column gap-2 flex-grow-1">
               <RouterLink to="/" class="nav-link d-flex align-items-center gap-3">
                 <svg v-if="route.path === '/'" aria-label="Home" class="x1lliihq x1n2onr6 x5n08af" fill="currentColor" height="24" role="img" viewBox="0 0 24 24" width="24"><title>Home</title><path d="M22 23h-6.001a1 1 0 0 1-1-1v-5.455a2.997 2.997 0 1 0-5.993 0V22a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V11.543a1.002 1.002 0 0 1 .31-.724l10-9.543a1.001 1.001 0 0 1 1.38 0l10 9.543a1.002 1.002 0 0 1 .31.724V22a1 1 0 0 1-1 1Z"></path></svg>
                 <svg v-else  aria-label="Home" class="x1lliihq x1n2onr6 x5n08af" fill="currentColor" height="24" role="img" viewBox="0 0 24 24" width="24"><title>Home</title><path d="M9.005 16.545a2.997 2.997 0 0 1 2.997-2.997A2.997 2.997 0 0 1 15 16.545V22h7V11.543L12 2 2 11.543V22h7.005Z" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="2"></path></svg>
@@ -20,91 +20,71 @@
                 <svg v-else aria-label="Search" class="x1lliihq x1n2onr6 x5n08af" fill="currentColor" height="24" role="img" viewBox="0 0 24 24" width="24"><title>Search</title><path d="M19 10.5A8.5 8.5 0 1 1 10.5 2a8.5 8.5 0 0 1 8.5 8.5Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><line fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" x1="16.511" x2="22" y1="16.511" y2="22"></line></svg>
                 <span class="d-none d-lg-block">Search</span>
               </RouterLink>
-              <a href="#" class="nav-link d-flex align-items-center gap-3">
+              <a href="#" class="nav-link d-flex align-items-center gap-3 disabled">
                 <i class="bi bi-compass fs-4"></i>
                 <span class="d-none d-lg-block">Explore</span>
               </a>
-              <a href="#" class="nav-link d-flex align-items-center gap-3">
+              <a href="#" class="nav-link d-flex align-items-center gap-3 disabled">
                 <i class="bi bi-film fs-4"></i>
                 <span class="d-none d-lg-block">Reels</span>
               </a>
-              <a href="#" class="nav-link d-flex align-items-center gap-3">
+              <a href="#" class="nav-link d-flex align-items-center gap-3 disabled">
                 <i class="bi bi-send fs-4"></i>
                 <span class="d-none d-lg-block">Messages</span>
               </a>
-              <a href="#" class="nav-link d-flex align-items-center gap-3">
+              <a href="#" class="nav-link d-flex align-items-center gap-3 disabled">
                 <i class="bi bi-heart fs-4"></i>
                 <span class="d-none d-lg-block">Notifications</span>
               </a>
-              <a href="#" class="nav-link d-flex align-items-center gap-3">
-                <i class="bi bi-plus-square fs-4"></i>
-                <span class="d-none d-lg-block">Create</span>
-              </a>
-              <RouterLink to="/profile" class="nav-link d-flex align-items-center gap-3">
-                <img src="https://i.pravatar.cc/40?u=a042581f4e29026704d" alt="Profil" class="rounded-circle" width="28" height="28">
+              <button @click="handleCreateClick" class="nav-link d-flex align-items-center gap-3 text-start">
+                  <i class="bi bi-plus-square fs-4"></i>
+                  <span class="d-none d-lg-block">Create</span>
+              </button>
+              <RouterLink :to="`/${auth.user.user_name}`" class="nav-link d-flex align-items-center gap-3">
+                <img :src="`${auth.user.user_avatar}`" alt="Profil" class="rounded-circle" width="28" height="28">
                 <span class="d-none d-lg-block">Profile</span>
               </RouterLink>
             </nav>
+
+            <button @click="handleSignOut" class="nav-link d-flex align-items-center gap-3 text-start">
+              <i class="bi bi-power fs-4"></i>
+              <span class="d-none d-lg-block">Sign Out</span>
+            </button>
           </div>
         </div>
 
         <!-- Kolom Tengah: Konten Utama (Postingan) -->
-        <main class="col-lg-6 col-md-8 col-12 mx-auto py-4">
+        <main class="col-lg-10 col-md-11 col-12 py-4">
           <div class="main-content-wrapper">
             <RouterView />
           </div>
         </main>
-
-        <!-- Kolom Kanan: Sugesti -->
-        <div class="col-lg-3 d-none d-lg-block">
-          <div class="sidebar-right sticky-top vh-100 py-4">
-            <!-- Profil Pengguna -->
-            <div class="d-flex align-items-center mb-4">
-              <img src="https://i.pravatar.cc/56?u=a042581f4e29026704d" alt="Profil" class="rounded-circle me-3">
-              <div>
-                <div class="fw-bold">nama_pengguna</div>
-                <div class="text-muted">Nama Lengkap</div>
-              </div>
-              <a href="#" class="ms-auto text-decoration-none small">Switch</a>
-            </div>
-
-            <!-- Header Sugesti -->
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <span class="fw-bold text-muted small">Suggested for you</span>
-              <a href="#" class="text-decoration-none small fw-bold">See All</a>
-            </div>
-
-            <!-- Daftar Sugesti -->
-            <div class="d-flex flex-column gap-3">
-              <!-- Contoh Sugesti 1 -->
-              <div class="d-flex align-items-center">
-                <img src="https://i.pravatar.cc/32?u=a042581f4e29026704e" alt="Profil Sugesti" class="rounded-circle me-3">
-                <div>
-                  <div class="fw-bold small">sugesti_1</div>
-                  <div class="text-muted small">Suggested for you</div>
-                </div>
-                <a href="#" class="ms-auto text-decoration-none small">Follow</a>
-              </div>
-              <!-- Contoh Sugesti 2 -->
-              <div class="d-flex align-items-center">
-                <img src="https://i.pravatar.cc/32?u=a042581f4e29026704f" alt="Profil Sugesti" class="rounded-circle me-3">
-                <div>
-                  <div class="fw-bold small">sugesti_2</div>
-                  <div class="text-muted small">Followed by user_x</div>
-                </div>
-                <a href="#" class="ms-auto text-decoration-none small">Follow</a>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
+    <!-- Menambahkan komponen Posts di sini agar bisa dipanggil -->
+    <PostPosting ref="postingModal" />
   </div>
 </template>
 
 <script setup lang="ts">
-  import { RouterLink, RouterView, useRoute } from 'vue-router';
-  const route = useRoute()
+  import { ref, useTemplateRef } from 'vue';
+  import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router';
+  import { useAuthStore } from '@/stores/auth';
+  import PostPosting from '@/components/PostPosting.vue'; // ✅
+
+
+  const route      = useRoute()
+  const router     = useRouter();
+  const auth       = useAuthStore();
+  const postModal  = useTemplateRef<InstanceType<typeof PostPosting> | null>('postingModal');
+
+
+  const handleCreateClick = () => postModal.value?.modalOpen();
+
+  const handleSignOut = () => {
+    useAuthStore().clearAuthData()
+    router.push('/signin');
+  };
 </script>
 
 <style scoped>
@@ -113,11 +93,10 @@
   padding: 0.5rem 0.75rem;
   transition: background-color 0.2s ease-in-out;
 }
-
-.nav-link:hover,
-.nav-link.router-link-exact-active {
-  background-color: var(--bs-tertiary-bg);
-  color: var(--bs-body-color);
+.nav-link.text-start {
+  border: none;
+  background: none;
+  width: 100%;
 }
 
 .nav-link.router-link-exact-active {
@@ -125,7 +104,7 @@
 }
 
 .main-content-wrapper {
-  max-width: 630px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 </style>
