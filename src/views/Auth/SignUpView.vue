@@ -1,64 +1,33 @@
 <template>
   <form @submit.prevent="handleSubmit">
-    <!-- Email -->
-    <div class="form-floating mb-3">
-      <input
-        type="email"
-        class="form-control"
-        :class="{ 'is-invalid': validationErrors.user_email }"
-        v-model="data.user_email"
-        placeholder="Email"
-        autocomplete="off" />
-      <label>Email</label>
-      <div v-if="validationErrors.user_email" class="invalid-feedback">
-        {{ validationErrors.user_email[0] }}
-      </div>
-    </div>
-
-    <!-- Name -->
-    <div class="form-floating mb-3">
-      <input
-        type="text"
-        class="form-control"
-        :class="{ 'is-invalid': validationErrors.user_name }"
-        placeholder="Name"
-        v-model="data.user_name"
-        autocomplete="off" />
-      <label>Username</label>
-      <div v-if="validationErrors.user_name" class="invalid-feedback">
-        {{ validationErrors.user_name[0] }}
-      </div>
-    </div>
-
-    <!-- Input Password -->
-    <div class="form-floating mb-3">
-      <input
-        :type="visible.password ? `text` : `password`"
-        class="form-control"
-        :class="{ 'is-invalid': validationErrors.password }"
-        placeholder="Password"
-        v-model="data.password"
-        autocomplete="off" />
-      <label>Password</label>
-      <i class="bi icon-end" :class="visible.password ? 'bi-eye' : 'bi-eye-slash'"
-        @click="visible.password = !visible.password"></i>
-      <div v-if="validationErrors.password" class="invalid-feedback">
-        {{ validationErrors.password[0] }}
-      </div>
-    </div>
-
-    <!-- Input Confirm Password -->
-    <div class="form-floating mb-3">
-      <input
-        :type="visible.confirmPassword ? `text` : `password`"
-        class="form-control"
-        placeholder="Confirm Password"
-        v-model="data.confirmPassword"
-        autocomplete="off" />
-      <label>Confirm Password</label>
-      <i class="bi icon-end" :class="visible.confirmPassword ? 'bi-eye' : 'bi-eye-slash'"
-        @click="visible.confirmPassword = !visible.confirmPassword"></i>
-    </div>
+    <AuthInput
+      v-model="data.user_email"
+      label="Email"
+      type="email"
+      :error="validationErrors.user_email?.[0]"
+    />
+    <AuthInput
+      v-model="data.user_full_name"
+      label="Full Name"
+      :error="validationErrors.user_full_name?.[0]"
+    />
+    <AuthInput
+      v-model="data.user_name"
+      label="Username"
+      :error="validationErrors.user_name?.[0]"
+    />
+    <AuthInput
+      v-model="data.password"
+      label="Password"
+      type="password"
+      :error="validationErrors.password?.[0]"
+    />
+    <AuthInput
+      v-model="data.confirmPassword"
+      label="Confirm Password"
+      type="password"
+      :error="validationErrors.confirmPassword?.[0]"
+    />
 
     <div class="d-grid mb-4">
       <button type="submit" class="btn btn-primary btn-lg" :disabled="loadingOnSubmit">
@@ -79,6 +48,7 @@
   </form>
 </template>
 <script setup lang="ts">
+  import AuthInput from '@/components/Auth/AuthInput.vue';
   import { useRouter } from 'vue-router'
   import axiosInstance from '@/services/axios';
   import { ref } from 'vue';
@@ -88,15 +58,10 @@
   // Data
   const data = ref({
     user_email      : "",
+    user_full_name  : "",
     user_name       : "",
     password        : "",
-    confirmPassword : ""
-  });
-
-  // For Visible
-  const visible = ref<{password: boolean, confirmPassword: boolean}>({
-    password        : false,
-    confirmPassword : false
+    confirmPassword : "",
   });
 
   // For Validation Errors
@@ -134,12 +99,4 @@
   }
 </script>
 
-<style scoped>
-  .icon-end {
-    top: 50%;
-    right: 15px;
-    cursor: pointer;
-    position: absolute;
-    transform: translateY(-50%);
-  }
-</style>
+<style scoped></style>

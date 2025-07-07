@@ -46,9 +46,12 @@
 </template>
 <script setup lang="ts">
   import { ref } from 'vue';
-  import axiosInstance from '@/services/axios';
   import { useRouter } from 'vue-router';
-  const router = useRouter();
+  import { useAuthStore } from '@/stores/auth';
+
+  import axiosInstance from '@/services/axios';
+  const router    = useRouter();
+  const authStore = useAuthStore();
 
   const visiblePassword = ref<boolean>(false);
   const loadingOnSubmit = ref<boolean>(false);
@@ -61,14 +64,14 @@
     loadingOnSubmit.value = true;
     await axiosInstance.post('/auth/signin', data.value)
       .then(resp => {
-        console.log(resp);
-        loadingOnSubmit.value = false;
-        router.push('/');
-      })
-      .catch(err => {
-        if (err.status == 401) alert("Password Salah");
-      })
-      .finally(() => loadingOnSubmit.value = false);
+        const { user, token } = resp.data.data;
+        authStore.setAuthData(token, user);
+        router.push("/");
+        // }
+      }).catch(error => {
+        if (error.response.status == 401) alert("Email atau password salah");
+        else alert("Terjadi kesalahan. Silakan coba lagi.");
+      }).finally(() => loadingOnSubmit.value = false);
   }
 </script>
 
