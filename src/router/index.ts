@@ -1,3 +1,4 @@
+import { useAuthStore } from '@/stores/auth';
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
@@ -5,8 +6,8 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'Home',
       component: () => import('@/layouts/MainLayout.vue'),
+      meta: { middleware: "auth" },
       children: [
         {
           path: "/",
@@ -21,9 +22,9 @@ const router = createRouter({
           meta: { pageTitle: "Search" },
         },
         {
-          path: "/profile",
-          name: "Profile",
-          component: () => import('@/views/Main/Profile/ProfileView.vue'),
+          path: "/:username",
+          name: "UserProfile",
+          component: () => import('@/views/Main/User/UserProfile.vue'),
           meta: { pageTitle: "Profile" },
         },
       ]
@@ -47,6 +48,24 @@ const router = createRouter({
       ]
     },
   ]
+});
+
+router.beforeEach((to, from, next) => {
+  const authStore   = useAuthStore();
+  authStore.verifyAuth();
+  if (to.meta.middleware == "auth") {
+    if   (authStore.isAuthenticated) next();
+    else next({ name: "signin" });
+  } else {
+    next();
+  }
+
+  // Scroll page to top on every route change
+  window.scrollTo({
+    top: 0,
+    left: 0,
+    behavior: "smooth",
+  });
 });
 
 export default router
