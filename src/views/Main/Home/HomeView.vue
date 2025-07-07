@@ -1,174 +1,160 @@
 <template>
-  <div class="home-view">
-    <!-- Stories Section -->
-    <!-- <div class="stories-container mb-4">
-      <div class="story-item text-center" v-for="i in 8" :key="`story-${i}`">
-        <div class="story-avatar-wrapper">
-          <img
-            :src="`https://i.pravatar.cc/64?u=story${i}`"
-            class="story-avatar"
-            alt="story avatar"
-          />
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="home-view" v-if="posts.length > 0">
+          <div class="posts-feed d-flex flex-column gap-4">
+            <div class="card post-card border-0" v-for="post in posts" :key="post.id">
+              <div class="card-header bg-white border-0 d-flex align-items-center px-0 py-3">
+                <div class="d-inline justify-content-center align-items-center border border-2 rounded-circle" style="width: 35px; height: 35px;">
+                  <img
+                    :src="post.user?.user_avatar"
+                    alt="user avatar"
+                    class="rounded-circle me-3"
+                    width="32"
+                    height="32"
+                  />
+                </div>
+                <div class="ms-2 me-auto">
+                  <RouterLink :to="`/${post.user?.user_name}`" class="fw-semibold text-decoration-none text-dark">
+                    {{ post.user?.user_name }}
+                  </RouterLink>
+                  <span>
+                    &#8226; {{ post.created_at }}
+                  </span>
+                </div>
+                <button class="btn btn-sm"><i class="bi bi-three-dots"></i></button>
+              </div>
+
+              <!-- Post Image -->
+              <div class="post-image-container">
+                <img :src="post.post_media_url" class="post-image rounded-3" alt="post image" />
+              </div>
+
+              <!-- Post Body -->
+              <div class="card-body px-0 py-3">
+                <div class="post-actions d-flex gap-3 fs-4 mb-2">
+                  <i :class="['bi', post.is_like ? 'bi-heart-fill text-danger' : 'bi-heart']"
+                    style="cursor: pointer;"
+                    @click="like(post)"></i>
+                  <i class="bi bi-chat"
+                    @click="openPostModal(post)"></i>
+                  <i class="bi bi-send"></i>
+                  <i class="bi bi-bookmark ms-auto"></i>
+                </div>
+
+                <!-- Likes -->
+                <div class="post-likes fw-bold mb-2">{{ post.likes_count }} likes</div>
+
+                <!-- Caption -->
+                <div class="post-caption">
+                  <span class="fw-bold me-1">{{ post.user?.user_name }}</span>
+                  <span>{{ post.post_caption }}</span>
+                </div>
+
+                <!-- View Comments -->
+                <button
+                  v-if="post.comments_count
+                    && post.comments_count > 0"
+                  @click="openPostModal(post)"
+                  class="btn btn-link p-0 text-muted text-decoration-none small d-block my-2 text-start">
+                  View all {{ post.comments_count }} comments
+                </button>
+
+                <!-- Add Comment -->
+                <div class="add-comment d-flex justify-content-between gap-3">
+                  <input
+                    type="text"
+                    class="form-control form-control-sm border-0 px-0"
+                    placeholder="Add a comment..."
+                    v-model="post.comment_user"/>
+                  <button
+                      @click="comment(post)"
+                      :disabled="post.comment_user == undefined
+                        || post.comment_user.length == 0"
+                      class="btn btn-link p-0 text-decoration-none"
+                      style="cursor: pointer;">
+                    Kirim
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <span class="story-username">user_{{ i }}</span>
+        <div class="home-view d-flex flex-column align-items-center justify-content-center gap-4" style="height: 100vh;" v-else>
+          <div class="d-flex align-items-center justify-content-center border border-2 rounded-circle p-1 border-dark" style="width: 50px; height: 50px;">
+            <i class="bi bi-camera fs-3 p-0 m-0"></i>
+          </div>
+          <div class="fw-semibold fs-3">No Posts</div>
+          Upload photos or follow other users to start viewing posts.
+        </div>
       </div>
-    </div> -->
-
-    <div class="posts-feed d-flex flex-column gap-4">
-      <div class="card post-card border-0" v-for="post in posts" :key="post.id">
-        <div class="card-header bg-white border-0 d-flex align-items-center px-0 py-3">
-          <img
-            :src="post.user.avatar"
-            alt="user avatar"
-            class="rounded-circle me-3"
-            width="32"
-            height="32"
-          />
-          <span class="fw-bold me-auto">{{ post.user.username }}</span>
-          <button class="btn btn-sm"><i class="bi bi-three-dots"></i></button>
-        </div>
-
-        <!-- Post Image -->
-        <img :src="post.imageUrl" class="card-img-top rounded-0" alt="post image" />
-
-        <!-- Post Body -->
-        <div class="card-body px-0 py-3">
-          <!-- Action Buttons -->
-          <div class="post-actions d-flex gap-3 fs-4 mb-2">
-            <i class="bi bi-heart"></i>
-            <i class="bi bi-chat"></i>
-            <i class="bi bi-send"></i>
-            <i class="bi bi-bookmark ms-auto"></i>
-          </div>
-
-          <!-- Likes -->
-          <div class="post-likes fw-bold mb-2">{{ post.likes }} likes</div>
-
-          <!-- Caption -->
-          <div class="post-caption">
-            <span class="fw-bold me-1">{{ post.user.username }}</span>
-            <span>{{ post.caption }}</span>
-          </div>
-
-          <!-- View Comments -->
-          <button
-            @click="openPostModal(post)"
-            class="btn btn-link p-0 text-muted text-decoration-none small d-block my-2 text-start"
-          >
-            View all {{ post.commentsCount }} comments
-          </button>
-
-          <!-- Add Comment -->
-          <div class="add-comment">
-            <input
-              type="text"
-              class="form-control form-control-sm border-0 px-0"
-              placeholder="Add a comment..."
-            />
-          </div>
-        </div>
+      <div class="col-lg-4">
+        <FriendSuggestion />
       </div>
     </div>
 
     <!-- Post Detail Modal -->
-    <PostDetailModal :post="selectedPost" @close="closePostModal" />
-  </div>
+    <PostDetailModal ref="postDetailModal" />
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import PostDetailModal from '@/components/PostDetailModal.vue';
-import { Post } from '@/types/types';
+  import { onMounted, ref, useTemplateRef } from 'vue';
+  import PostDetailModal from '@/components/PostDetailModal.vue';
+  import FriendSuggestion from './Components/FriendSuggestion.vue';
+  import axiosInstance from '@/services/axios';
+  import type { Post } from '@/types/Posts';
 
-// Placeholder data, nantinya ini akan datang dari API
-const posts = ref<Post[]>([
-  {
-    id: 1,
-    user: {
-      username: 'nature_lover',
-      avatar: 'https://i.pravatar.cc/32?u=nature_lover'
-    },
-    imageUrl: 'https://picsum.photos/600/600?random=1',
-    likes: 1204,
-    caption: 'Menikmati indahnya senja di pegunungan. Sungguh luar biasa!',
-    commentsCount: 88
-  },
-  {
-    id: 2,
-    user: {
-      username: 'foodie_journey',
-      avatar: 'https://i.pravatar.cc/32?u=foodie_journey'
-    },
-    imageUrl: 'https://picsum.photos/600/600?random=2',
-    likes: 2543,
-    caption: 'Pasta carbonara terenak yang pernah saya coba. #food #pasta',
-    commentsCount: 213
+  // Placeholder data, nantinya ini akan datang dari API
+  const posts              = ref<Post[]>([]);
+  const postDetailModalRef = useTemplateRef<InstanceType <typeof PostDetailModal>>('postDetailModal');
+
+  function openPostModal(post: Post) {
+    postDetailModalRef.value?.modalOpen(post);
   }
-]);
 
-const selectedPost = ref<Post | null>(null);
+  const comment = async (post: Post) => {
+    const postId  = post.post_id;
+    const comment = post.comment_user;
+    await axiosInstance.post(`/post/${postId}/comment`, {
+      comment : comment
+    })
+      .then(() => feed())
+      .finally(() => post.comment_user = '');
+  }
 
-function openPostModal(post: Post) {
-  selectedPost.value = post;
-}
+  const like = async (post: Post) => {
+    const postId  = post.post_id;
+    await axiosInstance.post(`/post/${postId}/like`)
+      .then(() => feed());
+  }
 
-function closePostModal() {
-  selectedPost.value = null;
-}
+  const feed = async () => {
+    await axiosInstance.get('/home')
+      .then((resp) => {
+        posts.value = resp.data.data;
+      })
+  }
+
+  onMounted(() => feed());
 </script>
 
 <style scoped>
-.stories-container {
-  display: flex;
-  overflow-x: auto;
-  padding-bottom: 10px;
-  gap: 1rem;
-  /* Hide scrollbar */
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
-}
-.stories-container::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, and Opera */
+
+.card.post-card {
+  border: 1px solid var(--bs-border-color-translucent);
+  border-radius: 8px;
 }
 
-.story-item {
-  flex: 0 0 auto;
-  width: 70px;
+.post-image-container {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background-color: #f0f0f0;
 }
 
-.story-avatar-wrapper {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  padding: 3px;
-  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-  margin: 0 auto 4px;
-}
-
-.story-avatar {
+.post-image {
   width: 100%;
   height: 100%;
-  border-radius: 50%;
-  border: 2px solid white;
   object-fit: cover;
-}
-
-.story-username {
-  font-size: 0.75rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.post-card {
-  border: 1px solid var(--bs-border-color-translucent);
-}
-
-.post-actions i {
-  cursor: pointer;
-}
-
-.add-comment input:focus {
-  box-shadow: none;
 }
 </style>
