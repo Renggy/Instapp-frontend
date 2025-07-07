@@ -1,18 +1,12 @@
 <template>
-  <div
-    class="modal fade"
-    ref="modalRef"
-    tabindex="-1"
-    aria-labelledby="postModalLabel"
-    aria-hidden="true"
-  >
+  <div class="modal fade" ref="modalRef" v-show="modalIsOpen">
     <div class="modal-dialog modal-dialog-centered modal-xl">
       <div class="modal-content">
         <div class="modal-body p-0">
-          <div v-if="post" class="row g-0">
+          <div v-if="dataPost" class="row g-0">
             <!-- Kolom Gambar -->
             <div class="col-lg-7 bg-dark d-flex justify-content-center align-items-center">
-              <img :src="post.imageUrl" class="img-fluid post-image" alt="Post image" />
+              <img :src="dataPost.post_media_url || 'https://picsum.photos/600/600?random=1'" class="img-fluid post-image" alt="Post image" />
             </div>
 
             <!-- Kolom Detail & Komentar -->
@@ -20,13 +14,13 @@
               <!-- Header -->
               <div class="d-flex align-items-center p-3 border-bottom">
                 <img
-                  :src="post.user.avatar"
+                  :src="dataPost.user?.user_avatar"
                   alt="user avatar"
                   class="rounded-circle me-3"
                   width="32"
                   height="32"
                 />
-                <span class="fw-bold me-auto">{{ post.user.username }}</span>
+                <span class="fw-bold me-auto">{{ dataPost.user?.user_name }}</span>
                 <button
                   type="button"
                   class="btn-close"
@@ -37,35 +31,33 @@
 
               <!-- Bagian Komentar (Scrollable) -->
               <div class="comments-section flex-grow-1 p-3">
-                <!-- Caption Postingan -->
                 <div class="d-flex mb-3">
                   <img
-                    :src="post.user.avatar"
+                    :src="dataPost.user?.user_avatar"
                     alt="user avatar"
                     class="rounded-circle me-3"
                     width="32"
                     height="32"
                   />
                   <div>
-                    <span class="fw-bold me-1">{{ post.user.username }}</span>
-                    <span>{{ post.caption }}</span>
-                    <div class="text-muted small mt-1">2d</div>
+                    <span class="fw-bold me-1">{{ dataPost.user?.user_name }}</span>
+                    <span>{{ dataPost.post_caption }}</span>
+                    <div class="text-muted small mt-1">{{ dataPost.created_at }}</div>
                   </div>
                 </div>
 
-                <!-- Daftar Komentar (Placeholder) -->
-                <div class="d-flex mb-3" v-for="i in 5" :key="`comment-${i}`">
+                <div class="d-flex mb-3" v-for="(i, index) in dataPost.comments" :key="`comment-${index}`">
                   <img
-                    :src="`https://i.pravatar.cc/32?u=commenter${i}`"
+                    :src="`${i.user?.user_avatar}`"
                     alt="commenter avatar"
                     class="rounded-circle me-3"
                     width="32"
                     height="32"
                   />
                   <div>
-                    <span class="fw-bold me-1">commenter_{{ i }}</span>
-                    <span>This is a sample comment. Looks great!</span>
-                    <div class="text-muted small mt-1">1d</div>
+                    <span class="fw-bold me-1">{{ i.user?.user_name }}</span>
+                    <span>{{ i.post_comment_text }}</span>
+                    <div class="text-muted small mt-1">{{ i.created_at}}</div>
                   </div>
                 </div>
               </div>
@@ -73,18 +65,34 @@
               <!-- Aksi & Tambah Komentar -->
               <div class="border-top p-3">
                 <div class="post-actions d-flex gap-3 fs-4 mb-2">
-                  <i class="bi bi-heart"></i>
+                  <i :class="['bi', dataPost.is_like ? 'bi-heart-fill text-danger' : 'bi-heart']"
+                    style="cursor: pointer;"
+                    @click="like">
+                  </i>
                   <i class="bi bi-chat"></i>
                   <i class="bi bi-send"></i>
-                  <i class="bi bi-bookmark ms-auto"></i>
+                <i class="bi bi-bookmark ms-auto"></i>
                 </div>
-                <div class="post-likes fw-bold mb-2">{{ post.likes }} likes</div>
-                <div class="add-comment">
+                <span class="fw-semibold"
+                  v-if="dataPost.likes_count && dataPost.likes_count > 0">
+                  {{ dataPost?.likes_count }} like
+                </span>
+                <!-- <div class="post-likes fw-bold mb-2">{{ post.likes }} likes</div> -->
+                <div class="add-comment d-flex justify-content-between">
                   <input
                     type="text"
                     class="form-control form-control-sm border-0 px-0"
                     placeholder="Add a comment..."
+                    v-model="commentPost"
                   />
+                  <button
+                      @click="comment"
+                      :disabled="commentPost.length === 0"
+                      class="btn btn-link p-0 text-decoration-none"
+                      style="cursor: pointer;"
+                    >
+                    Kirim
+                  </button>
                 </div>
               </div>
             </div>
@@ -98,36 +106,60 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import { Modal } from 'bootstrap';
-import type { Post } from '@/types'; // Kita akan buat file types ini
 
-const props = defineProps<{
-  post: Post | null;
-}>();
+import type { Post } from '@/types/Posts';
+import axiosInstance from '@/services/axios';
 
-const emit = defineEmits(['close']);
+const modalRef      = ref<HTMLElement | null>(null);
+const modalInstance = ref<Modal | null>(null);
+const modalIsOpen   = ref<boolean>(false);
+const selectedPost  = ref<Post>({} as Post);
+const dataPost      = ref<Post | null>({} as Post);
+const commentPost   = ref<string>('');
 
-const modalRef = ref<HTMLElement | null>(null);
-let modalInstance: Modal | null = null;
+const modalOpen = (prop : Post) => {
+  modalIsOpen.value  = true;
+  selectedPost.value = prop;
+  loadPost();
+}
+
+const loadPost = async () => {
+  const postId = selectedPost.value.post_id;
+  await axiosInstance.get(`/post/${postId}`)
+    .then((resp) => dataPost.value = resp.data.data);
+}
+
+const comment = async () => {
+  const postId = selectedPost.value.post_id;
+  await axiosInstance.post(`/post/${postId}/comment`, {
+    comment : commentPost.value
+  })
+  .then(() => loadPost())
+  .finally(() => commentPost.value = '');
+}
+
+const like = async () => {
+  const postId = selectedPost.value.post_id;
+  await axiosInstance.post(`/post/${postId}/like`)
+    .then(() => loadPost());
+}
 
 onMounted(() => {
   if (modalRef.value) {
-    modalInstance = new Modal(modalRef.value);
+    modalInstance.value = new Modal(modalRef.value);
     modalRef.value.addEventListener('hidden.bs.modal', () => {
-      emit('close');
+      modalIsOpen.value = false;
+      dataPost.value = null;
     });
   }
 });
 
-watch(
-  () => props.post,
-  (newPost) => {
-    if (newPost) {
-      modalInstance?.show();
-    } else {
-      modalInstance?.hide();
-    }
-  }
-);
+watch(modalIsOpen, (open) => {
+  if (open) modalInstance.value?.show();
+  else modalInstance.value?.hide();
+})
+
+defineExpose({ modalOpen });
 </script>
 
 <style scoped>
