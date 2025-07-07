@@ -1,5 +1,6 @@
 import router from '@/router';
 import axios from 'axios';
+import cookies from './cookies';
 
 const axiosInstance = axios.create({
 
@@ -14,8 +15,7 @@ const axiosInstance = axios.create({
 // INTERCEPTOR
 axiosInstance.interceptors.request.use(
   (config) => {
-    // Ambil token dari localStorage atau Pinia store
-    const token = localStorage.getItem('authToken');
+    const token = cookies.getToken();
     if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
@@ -28,7 +28,7 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error)    => {
     switch (error.response.status) {
-      case 401:router.push('/signin');    break;
+      case 401: router.push('/signin');    break;
       case 403: router.push('/');         break;
       case 500: alert('Something error'); break;
       default: break;
